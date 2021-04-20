@@ -111,7 +111,7 @@ func syncDeployments(environ *string, kubeConfig *rest.Config) {
 
 	for _, d := range list.Items {
 		app_name := strings.TrimSpace(strings.Split(d.Name, "-")[0])
-		deployment_manifest := fmt.Sprintf("%s/%s/deployement-%s.yaml", eksPaths[*environ], app_name, app_name)
+		deployment_manifest := fmt.Sprintf("%s/%s/deployment-%s.yaml", eksPaths[*environ], app_name, app_name)
 		if fileExists(deployment_manifest) {
 			for _, c := range d.Spec.Template.Spec.Containers {
 				fmt.Printf(" * %s (image: %s)\n", d.Name, c.Image)
