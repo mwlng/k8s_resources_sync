@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
+	"regexp"
 
 	//"gopkg.in/yaml.v2"
 
@@ -109,15 +109,16 @@ func syncDeployments(environ *string, kubeConfig *rest.Config) {
 		panic(err)
 	}
 
+	re := regexp.MustCompile(`^(.+)-deployment$`)
 	for _, d := range list.Items {
-		app_name := strings.TrimSpace(strings.Split(d.Name, "-")[0])
+		app_name := re.FindSubmatch([]byte(d.Name))[0]
 		deployment_manifest := fmt.Sprintf("%s/%s/deployment-%s.yaml", eksPaths[*environ], app_name, app_name)
 		if fileExists(deployment_manifest) {
 			for _, c := range d.Spec.Template.Spec.Containers {
-				fmt.Printf(" * %s (image: %s)\n", d.Name, c.Image)
+				fmt.Printf("* Found %s (image: %s)\n", d.Name, c.Image)
 			}
 		} else {
-			fmt.Printf("Can't find deployement manifest file: %s \n", deployment_manifest)
+			fmt.Printf("x Can't find deployement manifest file: %s \n", deployment_manifest)
 		}
 	}
 }
