@@ -9,7 +9,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
-	batchv1 "k8s.io/api/batch/v1"
+	batchv1 "k8s.io/api/batch/v1beta1"
 	corev1 "k8s.io/api/core/v1"
 
 	"k8s.io/client-go/kubernetes/scheme"
@@ -46,6 +46,8 @@ func LoadCronJobYamlFiles(rootDir string) []*batchv1.CronJob {
 				switch obj.(type) {
 				case *batchv1.CronJob:
 					cronJobs = append(cronJobs, obj.(*batchv1.CronJob))
+					//default:
+					//	fmt.Println(reflect.TypeOf(obj))
 				}
 			}
 		}
