@@ -78,9 +78,11 @@ func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) 
 			containerImageMap[c.Name] = c.Image
 		}
 
-		for _, c := range d.Spec.Template.Spec.Containers {
-			c.Image = containerImageMap[c.Name]
+		for i, c := range d.Spec.Template.Spec.Containers {
+			d.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
 		}
+
+		d.Spec.Replicas = src_deployment.Spec.Replicas
 	}
 }
 
