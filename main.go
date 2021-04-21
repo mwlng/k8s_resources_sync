@@ -62,11 +62,18 @@ func main() {
 	flag.Set("v", "2")
 	flag.Parse()
 
+	if len(*srcEksClusterName) == 0 {
+		klog.Infoln("No specified source k8s cluster name, nothing to sync exit !")
+		Usage()
+		os.Exit(0)
+	}
+
 	eksFilesRootPath := eksPaths[*environ]
 	if len(*rootPath) > 0 {
 		eksFilesRootPath = utils.NormalizePath(*rootPath)
 	}
 
+	klog.Infoln("Loading client kubeconfig ...")
 	targetKubeConfig, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
 	if err != nil {
 		panic(err)
@@ -77,22 +84,32 @@ func main() {
 		panic(err)
 	}
 
-	klog.Infof("Starting to sync k8s resources in %s ...", *environ)
+	klog.Infof("Starting to sync k8s resources from %s in %s ...", sourceKubeConfig.Host, *environ)
 	if *deploymentFlag {
-		klog.Infof("Syncing k8s deployments resources to %s ...", *environ)
+		klog.Infof("Syncing k8s deployment resources to %s ...", targetKubeConfig.Host)
 		deployments := LoadDeploymentYamlFiles(eksFilesRootPath)
 		for _, d := range deployments {
-			fmt.Printf("* Deployment: %s\n", d.ObjectMeta.Name)
+			klog.Infoln("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
 		SyncDeployments(sourceKubeConfig, deployments)
 		PrintDeployments(deployments)
 		//ApplyDeployments(targetKubeConfig, deployments)
 	} else if *serviceFlag {
-		klog.Infof("Syncing k8s services to %s ...", environ)
-		SyncServices(environ, targetKubeConfig)
+		klog.Infof("Syncing k8s service resources to %s ...", targetKubeConfig.Host)
+		services := LoadServiceYamlFiles(eksFilesRootPath)
+		for _, s := range services {
+			klog.Infoln("* Service: %s\n", s.ObjectMeta.Name)
+		}
+		services = SyncServices(sourceKubeConfig, services)
+		PrintServices(services)
 	} else if *cronFlag {
-		klog.Infof("Syncing k8s cron jobs to %s ...", environ)
-		SyncCronJobs(environ, targetKubeConfig)
+		klog.Infof("Syncing k8s cron jobs to %s ...", targetKubeConfig.Host)
+		cronJobs := LoadCronJobYamlFiles(eksFilesRootPath)
+		for _, job := range cronJobs {
+			klog.Infoln("* crob job: %s\n", job.ObjectMeta.Name)
+		}
+		cronJobs = SyncCronJobs(sourceKubeConfig, cronJobs)
+		PrintCronJobs(cronJobs)
 	} else {
 		klog.Infoln("No specified k8s resources to sync, exit !")
 		Usage()
@@ -100,6 +117,7 @@ func main() {
 }
 
 func Usage() {
+	fmt.Println()
 	fmt.Printf("Usage of %s:\n", os.Args[0])
 	flag.PrintDefaults()
 }
