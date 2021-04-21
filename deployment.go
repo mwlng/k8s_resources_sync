@@ -60,20 +60,20 @@ func LoadDeploymentYamlFiles(rootDir string) []*appsv1.Deployment {
 }
 
 func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) {
-	klog.Infof("Syncing deployments from cluster: %s, namespace %s\n", kubeConfig.ServerName, corev1.NamespaceDefault)
+	klog.Infof("Syncing deployments from cluster: %s, namespace %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	deployment, err := k8s_resources.NewDeployment(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
 		panic(err)
 	}
 
 	for _, d := range deployments {
-		deployment, err := deployment.GetDeployment(d.Name)
+		src_deployment, err := deployment.GetDeployment(d.Name)
 		if err != nil {
-			klog.Errorf("Failed to get deployment: %s. Err was: %s", err)
+			klog.Errorf("Failed to get deployment: %s. Err was: %s", d.Name, err)
 		}
 
 		containerImageMap := map[string]string{}
-		for _, c := range deployment.Spec.Template.Spec.Containers {
+		for _, c := range src_deployment.Spec.Template.Spec.Containers {
 			containerImageMap[c.Name] = c.Image
 		}
 
