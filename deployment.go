@@ -70,6 +70,7 @@ func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) 
 		src_deployment, err := deployment.GetDeployment(d.Name)
 		if err != nil {
 			klog.Errorf("Failed to get deployment: %s. Err was: %s", d.Name, err)
+			continue
 		}
 
 		containerImageMap := map[string]string{}
