@@ -56,6 +56,7 @@ func main() {
 	deploymentFlag := flag.Bool("deployment", false, "Sync k8s deployment resources")
 	serviceFlag := flag.Bool("service", false, "Sync k8s service resources")
 	cronFlag := flag.Bool("cronjob", false, "Sync k8s cron job resources")
+	srcEksClusterName := flag.String("source_cluster_name", "", "k8s source cluster name")
 	rootPath := flag.String("rootpath", "", "Specified root path of k8s resource manifest files")
 
 	flag.Set("v", "2")
@@ -66,7 +67,12 @@ func main() {
 		eksFilesRootPath = utils.NormalizePath(*rootPath)
 	}
 
-	config, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	targetKubeConfig, err := clientcmd.BuildConfigFromFlags("", *kubeconfig)
+	if err != nil {
+		panic(err)
+	}
+
+	sourceKubeConfig, err := GetKubeConfig(*srcEksClusterName, *kubeconfig)
 	if err != nil {
 		panic(err)
 	}
@@ -78,15 +84,15 @@ func main() {
 		for _, d := range deployments {
 			fmt.Printf("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
-		SyncDeployments(config, deployments)
+		SyncDeployments(sourceKubeConfig, deployments)
 		PrintDeployments(deployments)
-		//ApplyDeployments(config, deployments)
+		//ApplyDeployments(targetKubeConfig, deployments)
 	} else if *serviceFlag {
 		klog.Infof("Syncing k8s services to %s ...", environ)
-		SyncServices(environ, config)
+		SyncServices(environ, targetKubeConfig)
 	} else if *cronFlag {
 		klog.Infof("Syncing k8s cron jobs to %s ...", environ)
-		SyncCronJobs(environ, config)
+		SyncCronJobs(environ, targetKubeConfig)
 	} else {
 		klog.Infoln("No specified k8s resources to sync, exit !")
 		Usage()
