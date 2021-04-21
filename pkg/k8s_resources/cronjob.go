@@ -61,7 +61,7 @@ func (d *CronJob) ApplyCronJob(job *batchv1.CronJob) error {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), cronJobApplyConfig, metav1.ApplyOptions{})
+	_, err = d.client.Apply(context.TODO(), cronJobApplyConfig, metav1.ApplyOptions{FieldManager: "k8s_resource_sync"})
 	if err != nil {
 		return err
 	}

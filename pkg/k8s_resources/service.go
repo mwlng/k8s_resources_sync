@@ -47,7 +47,7 @@ func (d *Service) GetService(name string) (*corev1.Service, error) {
 }
 
 func (d *Service) CreateService(service *corev1.Service) error {
-	_, err := d.client.Create(context.TODO(), service, metav1.CreateOptions{})
+	_, err := d.client.Create(context.TODO(), service, metav1.CreateOptions{FieldManager: "k8k8s_resource_sync"})
 	if err != nil {
 		return err
 	}

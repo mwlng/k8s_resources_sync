@@ -92,8 +92,8 @@ func main() {
 			klog.Infof("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
 		SyncDeployments(sourceKubeConfig, deployments)
-		PrintDeployments(deployments)
-		//ApplyDeployments(targetKubeConfig, deployments)
+		//PrintDeployments(deployments)
+		ApplyDeployments(targetKubeConfig, deployments)
 	} else if *serviceFlag {
 		klog.Infof("Syncing k8s service resources to %s ...", targetKubeConfig.Host)
 		services := LoadServiceYamlFiles(eksFilesRootPath)

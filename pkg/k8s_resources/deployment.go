@@ -61,7 +61,7 @@ func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), deploymentApplyConfig, metav1.ApplyOptions{})
+	_, err = d.client.Apply(context.TODO(), deploymentApplyConfig, metav1.ApplyOptions{FieldManager: "k8_resources_sync"})
 	if err != nil {
 		return err
 	}
