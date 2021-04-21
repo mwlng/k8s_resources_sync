@@ -56,12 +56,12 @@ func (d *Deployment) CreateDeployment(deployment *appsv1.Deployment) error {
 }
 
 func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
-	deploymentApplyConfig, err := v1.ExtractDeployment(deployment, "k8s_resource_sync")
+	deploymentApplyConfig, err := v1.ExtractDeployment(deployment, "k8s_resources_sync")
 	if err != nil {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), deploymentApplyConfig, metav1.ApplyOptions{FieldManager: "k8_resources_sync"})
+	_, err = d.client.Apply(context.TODO(), deploymentApplyConfig, metav1.ApplyOptions{FieldManager: "k8s_resources_sync"})
 	if err != nil {
 		return err
 	}
