@@ -59,7 +59,7 @@ func LoadServiceYamlFiles(rootDir string) []*corev1.Service {
 }
 
 func SyncServices(kubeConfig *rest.Config, services []*corev1.Service) []*corev1.Service {
-	klog.Infof("Syncing services from cluster: %s, namespace %s\n", kubeConfig.Host, corev1.NamespaceDefault)
+	klog.Infof("Syncing services from cluster: %s, namespace: %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	service, err := k8s_resources.NewService(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
 		panic(err)

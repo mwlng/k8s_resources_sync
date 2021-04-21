@@ -60,7 +60,7 @@ func LoadCronJobYamlFiles(rootDir string) []*batchv1.CronJob {
 }
 
 func SyncCronJobs(kubeConfig *rest.Config, cronJobs []*batchv1.CronJob) []*batchv1.CronJob {
-	klog.Infof("Syncing cron jobs from cluster: %s, namespace %s\n", kubeConfig.Host, corev1.NamespaceDefault)
+	klog.Infof("Syncing cron jobs from cluster: %s, namespace: %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	cronJob, err := k8s_resources.NewCronJob(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
 		panic(err)

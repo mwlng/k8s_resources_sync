@@ -60,7 +60,7 @@ func LoadDeploymentYamlFiles(rootDir string) []*appsv1.Deployment {
 }
 
 func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) {
-	klog.Infof("Syncing deployments from cluster: %s, namespace %s\n", kubeConfig.Host, corev1.NamespaceDefault)
+	klog.Infof("Syncing deployments from cluster: %s, namespace: %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	deployment, err := k8s_resources.NewDeployment(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
 		panic(err)

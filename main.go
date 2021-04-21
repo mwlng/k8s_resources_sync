@@ -89,7 +89,7 @@ func main() {
 		klog.Infof("Syncing k8s deployment resources to %s ...", targetKubeConfig.Host)
 		deployments := LoadDeploymentYamlFiles(eksFilesRootPath)
 		for _, d := range deployments {
-			klog.Infoln("* Deployment: %s\n", d.ObjectMeta.Name)
+			klog.Infof("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
 		SyncDeployments(sourceKubeConfig, deployments)
 		PrintDeployments(deployments)
@@ -98,7 +98,7 @@ func main() {
 		klog.Infof("Syncing k8s service resources to %s ...", targetKubeConfig.Host)
 		services := LoadServiceYamlFiles(eksFilesRootPath)
 		for _, s := range services {
-			klog.Infoln("* Service: %s\n", s.ObjectMeta.Name)
+			klog.Infof("* Service: %s\n", s.ObjectMeta.Name)
 		}
 		services = SyncServices(sourceKubeConfig, services)
 		PrintServices(services)
@@ -106,7 +106,7 @@ func main() {
 		klog.Infof("Syncing k8s cron jobs to %s ...", targetKubeConfig.Host)
 		cronJobs := LoadCronJobYamlFiles(eksFilesRootPath)
 		for _, job := range cronJobs {
-			klog.Infoln("* crob job: %s\n", job.ObjectMeta.Name)
+			klog.Infof("* cron job: %s\n", job.ObjectMeta.Name)
 		}
 		cronJobs = SyncCronJobs(sourceKubeConfig, cronJobs)
 		PrintCronJobs(cronJobs)
