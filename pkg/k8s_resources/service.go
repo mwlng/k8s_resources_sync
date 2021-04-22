@@ -2,8 +2,6 @@ package k8s_resources
 
 import (
 	"context"
-	"fmt"
-	"strconv"
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -68,9 +66,10 @@ func (s *Service) UpdateService(service *corev1.Service) error {
 func (s *Service) ApplyService(service *corev1.Service) error {
 	result, _ := s.GetService(service.Name)
 	if result != nil {
-		version, _ := strconv.ParseInt(result.GetResourceVersion(), 10, 32)
-		service.SetResourceVersion(fmt.Sprintf("%d", (version + 1)))
-		service.Spec.ClusterIP = result.Spec.ClusterIP
+		//version, _ := strconv.ParseInt(result.GetResourceVersion(), 10, 32)
+		//service.SetResourceVersion(fmt.Sprintf("%d", (version + 1)))
+		//service.Spec.ClusterIP = result.Spec.ClusterIP
+		result.SetAnnotations(service.GetAnnotations())
 		err := s.UpdateService(service)
 		if err != nil {
 			return err
