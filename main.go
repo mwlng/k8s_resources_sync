@@ -52,12 +52,15 @@ func main() {
 	}
 
 	environ := flag.String("e", "alpha", "Target environment")
+	srcEksClusterName := flag.String("source_cluster_name", "", "Source k8s cluster name")
+	rootPath := flag.String("rootpath", "", "Specified root path of k8s resource manifest files")
+
 	deploymentFlag := flag.Bool("deployment", false, "Sync k8s deployment resources")
 	serviceFlag := flag.Bool("service", false, "Sync k8s service resources")
 	cronFlag := flag.Bool("cronjob", false, "Sync k8s cron job resources")
-	saFlag := flag.Bool("serviceaccount", false, "Sync k8s service account resource")
-	srcEksClusterName := flag.String("source_cluster_name", "", "k8s source cluster name")
-	rootPath := flag.String("rootpath", "", "Specified root path of k8s resource manifest files")
+	saFlag := flag.Bool("serviceaccount", false, "Sync k8s service account resources")
+	crFlag := flag.Bool("clusterrole", false, "Sync k8s cluster role resources")
+	crbFlag := flag.Bool("clusterrole", false, "Sync k8s cluster role binding resources")
 
 	flag.Set("v", "2")
 	flag.Parse()
@@ -100,7 +103,7 @@ func main() {
 		for _, s := range services {
 			klog.Infof("* Service: %s\n", s.ObjectMeta.Name)
 		}
-		services = helpers.SyncServices(sourceKubeConfig, services)
+		services = helpers.SyncServices(sourceKubeConfig, services, *environ)
 		//PrintServices(services)
 		helpers.ApplyServices(targetKubeConfig, services)
 	} else if *cronFlag {
@@ -121,6 +124,24 @@ func main() {
 		serviceAccounts = helpers.SyncServiceAccounts(sourceKubeConfig, serviceAccounts)
 		//PrintCronJobs(cronJobs)
 		helpers.ApplyServiceAccounts(targetKubeConfig, serviceAccounts)
+	} else if *crFlag {
+		klog.Infof("Syncing k8s cluster roles to %s ...", targetKubeConfig.Host)
+		clusterRoles := helpers.LoadClusterRoleYamlFiles(eksFilesRootPath)
+		for _, role := range clusterRoles {
+			klog.Infof("* cluster role: %s\n", role.ObjectMeta.Name)
+		}
+		clusterRoles = helpers.SyncClusterRoles(sourceKubeConfig, clusterRoles)
+		//PrintClusterRoles(clusterRoles)
+		helpers.ApplyClusterRoles(targetKubeConfig, clusterRoles)
+	} else if *crbFlag {
+		klog.Infof("Syncing k8s cluster role bindings to %s ...", targetKubeConfig.Host)
+		clusterRoleBindings := helpers.LoadClusterRoleBindingYamlFiles(eksFilesRootPath)
+		for _, roleBinding := range clusterRoleBindings {
+			klog.Infof("* cluster role binding: %s\n", roleBinding.ObjectMeta.Name)
+		}
+		clusterRoleBindings = helpers.SyncClusterRoleBindings(sourceKubeConfig, clusterRoleBindings)
+		//PrintClusterRoleBindings(clusterRoleBindings)
+		helpers.ApplyClusterRoleBindings(targetKubeConfig, clusterRoleBindings)
 	} else {
 		klog.Infoln("No specified k8s resources to sync, exit !")
 		Usage()

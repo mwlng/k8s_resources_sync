@@ -18,6 +18,12 @@ import (
 	"github.com/mwlng/k8s_resources_sync/pkg/k8s_resources"
 )
 
+var private_subnets map[string]string = map[string]string{
+	"alpha": "subnet-092aa15246e226be2, subnet-0c85b6c43be91a809",
+	"qa":    "",
+	"prod":  "",
+}
+
 func LoadServiceYamlFiles(rootDir string) []*corev1.Service {
 	services := []*corev1.Service{}
 	err := filepath.Walk(rootDir, func(path string, info fs.FileInfo, err error) error {
@@ -58,7 +64,7 @@ func LoadServiceYamlFiles(rootDir string) []*corev1.Service {
 	return services
 }
 
-func SyncServices(kubeConfig *rest.Config, services []*corev1.Service) []*corev1.Service {
+func SyncServices(kubeConfig *rest.Config, services []*corev1.Service, environ string) []*corev1.Service {
 	klog.Infof("Syncing services from cluster: %s, namespace: %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	service, err := k8s_resources.NewService(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
@@ -86,6 +92,7 @@ func SyncServices(kubeConfig *rest.Config, services []*corev1.Service) []*corev1
 					if lbInternal != "true" {
 						annotations["service.beta.kubernetes.io/aws-load-balancer-internal"] = "true"
 					}
+					annotations["service.beta.kubernetes.io/aws-load-balancer-subnets"] = private_subnets[environ]
 				}
 				s.SetAnnotations(annotations)
 			}
