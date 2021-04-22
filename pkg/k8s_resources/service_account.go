@@ -66,6 +66,7 @@ func (s *ServiceAccount) UpdateServiceAccount(serviceAccount *corev1.ServiceAcco
 func (s *ServiceAccount) ApplyServiceAccount(serviceAccount *corev1.ServiceAccount) error {
 	result, _ := s.GetServiceAccount(serviceAccount.Name)
 	if result != nil {
+		serviceAccount.ObjectMeta.UID = ""
 		err := s.UpdateServiceAccount(serviceAccount)
 		if err != nil {
 			return err

@@ -96,7 +96,7 @@ func ApplyServiceAccounts(kubeConfig *rest.Config, serviceAccounts []*corev1.Ser
 	}
 
 	for _, account := range serviceAccounts {
-		klog.Infof("Applying service: %s ...", account.Name)
+		klog.Infof("Applying service account: %s ...", account.Name)
 		err := serviceAccount.ApplyServiceAccount(account)
 		if err != nil {
 			klog.Errorf("Failed to apply service. Err was: %s", err)
