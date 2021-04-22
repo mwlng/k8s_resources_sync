@@ -59,13 +59,14 @@ func LoadDeploymentYamlFiles(rootDir string) []*appsv1.Deployment {
 	return deployments
 }
 
-func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) {
+func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) []*appsv1.Deployment {
 	klog.Infof("Syncing deployments from cluster: %s, namespace: %s\n", kubeConfig.Host, corev1.NamespaceDefault)
 	deployment, err := k8s_resources.NewDeployment(kubeConfig, corev1.NamespaceDefault)
 	if err != nil {
 		panic(err)
 	}
 
+	new_Deployments := []*appsv1.Deployment{}
 	for _, d := range deployments {
 		src_deployment, err := deployment.GetDeployment(d.Name)
 		if err != nil {
@@ -83,7 +84,11 @@ func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) 
 		}
 
 		d.Spec.Replicas = src_deployment.Spec.Replicas
+
+		new_Deployments = append(new_Deployments, d)
 	}
+
+	return new_Deployments
 }
 
 func PrintDeployments(deployments []*appsv1.Deployment) {

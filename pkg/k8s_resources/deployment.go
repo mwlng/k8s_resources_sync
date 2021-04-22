@@ -75,6 +75,8 @@ func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
 			result.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
 		}
 
+		result.Spec.Replicas = deployment.Spec.Replicas
+
 		err := d.UpdateDeployment(deployment)
 		if err != nil {
 			return err

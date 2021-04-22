@@ -91,7 +91,7 @@ func main() {
 		for _, d := range deployments {
 			klog.Infof("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
-		SyncDeployments(sourceKubeConfig, deployments)
+		deployments = SyncDeployments(sourceKubeConfig, deployments)
 		//PrintDeployments(deployments)
 		ApplyDeployments(targetKubeConfig, deployments)
 	} else if *serviceFlag {
