@@ -81,8 +81,15 @@ func SyncServices(kubeConfig *rest.Config, services []*corev1.Service) []*corev1
 				annotations["external-dns.alpha.kubernetes.io/hostname"] = fmt.Sprintf(
 					"%s.blue.%s", dnsTokens[0],
 					strings.Join(dnsTokens[1:], "."))
+
+				if lbInternal, ok := annotations["service.beta.kubernetes.io/aws-load-balancer-internal"]; ok {
+					if lbInternal != "true" {
+						annotations["service.beta.kubernetes.io/aws-load-balancer-internal"] = "true"
+					}
+				}
 				s.SetAnnotations(annotations)
 			}
+
 			synced_services = append(synced_services, s)
 		}
 	}
