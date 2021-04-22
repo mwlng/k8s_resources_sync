@@ -66,6 +66,15 @@ func (d *Deployment) UpdateDeployment(deployment *appsv1.Deployment) error {
 func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
 	result, _ := d.GetDeployment(deployment.Name)
 	if result != nil {
+		containerImageMap := map[string]string{}
+		for _, c := range deployment.Spec.Template.Spec.Containers {
+			containerImageMap[c.Name] = c.Image
+		}
+
+		for i, c := range result.Spec.Template.Spec.Containers {
+			result.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
+		}
+
 		err := d.UpdateDeployment(deployment)
 		if err != nil {
 			return err
