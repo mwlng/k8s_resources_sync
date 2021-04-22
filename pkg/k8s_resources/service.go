@@ -70,7 +70,7 @@ func (s *Service) ApplyService(service *corev1.Service) error {
 		//service.SetResourceVersion(fmt.Sprintf("%d", (version + 1)))
 		//service.Spec.ClusterIP = result.Spec.ClusterIP
 		result.SetAnnotations(service.GetAnnotations())
-		err := s.UpdateService(service)
+		err := s.UpdateService(result)
 		if err != nil {
 			return err
 		}
