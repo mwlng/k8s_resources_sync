@@ -64,12 +64,8 @@ func (d *Deployment) UpdateDeployment(deployment *appsv1.Deployment) error {
 }
 
 func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
-	deployment, err := d.GetDeployment(deployment.Name)
-	if err != nil {
-		return err
-	}
-
-	if deployment != nil {
+	result, _ := d.GetDeployment(deployment.Name)
+	if result != nil {
 		err := d.UpdateDeployment(deployment)
 		if err != nil {
 			return err
