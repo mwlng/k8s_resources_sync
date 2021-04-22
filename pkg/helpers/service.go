@@ -75,12 +75,14 @@ func SyncServices(kubeConfig *rest.Config, services []*corev1.Service) []*corev1
 
 		if src_service != nil {
 			annotations := s.GetAnnotations()
-			externalDns := annotations["external-dns.alpha.kubernetes.io/hostname"]
-			dnsTokens := strings.Split(externalDns, ".")
-			annotations["external-dns.alpha.kubernetes.io/hostname"] = fmt.Sprintf(
-				"%s.blue.%s", dnsTokens[0],
-				strings.Join(dnsTokens[1:], "."))
-			s.SetAnnotations(annotations)
+
+			if externalDns, ok := annotations["external-dns.alpha.kubernetes.io/hostname"]; ok {
+				dnsTokens := strings.Split(externalDns, ".")
+				annotations["external-dns.alpha.kubernetes.io/hostname"] = fmt.Sprintf(
+					"%s.blue.%s", dnsTokens[0],
+					strings.Join(dnsTokens[1:], "."))
+				s.SetAnnotations(annotations)
+			}
 			synced_services = append(synced_services, s)
 		}
 	}
