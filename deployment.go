@@ -16,7 +16,6 @@ import (
 	"k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 
-	"github.com/mwlng/k8s_resources_sync/pkg/dyna_client"
 	"github.com/mwlng/k8s_resources_sync/pkg/k8s_resources"
 )
 
@@ -95,6 +94,23 @@ func PrintDeployments(deployments []*appsv1.Deployment) {
 }
 
 func ApplyDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) {
+	deployment, err := k8s_resources.NewDeployment(kubeConfig, corev1.NamespaceDefault)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, d := range deployments {
+		klog.Infof("Applying deployment %s ...", d.Name)
+		err := deployment.ApplyDeployment(d)
+		if err != nil {
+			klog.Errorf("Failed to apply deployment. Err was: %s", err)
+			continue
+		}
+		klog.Infoln("Done.")
+	}
+}
+
+/*func ApplyDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) {
 	dyna_client, err := dyna_client.NewDynaClient(kubeConfig)
 	if err != nil {
 		panic(err)
@@ -111,3 +127,4 @@ func ApplyDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment)
 		klog.Infoln("Done.")
 	}
 }
+*/
