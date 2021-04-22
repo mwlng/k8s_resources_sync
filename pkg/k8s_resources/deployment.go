@@ -77,7 +77,7 @@ func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
 
 		result.Spec.Replicas = deployment.Spec.Replicas
 
-		err := d.UpdateDeployment(deployment)
+		err := d.UpdateDeployment(result)
 		if err != nil {
 			return err
 		}
