@@ -101,7 +101,8 @@ func main() {
 			klog.Infof("* Service: %s\n", s.ObjectMeta.Name)
 		}
 		services = SyncServices(sourceKubeConfig, services)
-		PrintServices(services)
+		//PrintServices(services)
+		ApplyServices(targetKubeConfig, services)
 	} else if *cronFlag {
 		klog.Infof("Syncing k8s cron jobs to %s ...", targetKubeConfig.Host)
 		cronJobs := LoadCronJobYamlFiles(eksFilesRootPath)
@@ -109,7 +110,8 @@ func main() {
 			klog.Infof("* cron job: %s\n", job.ObjectMeta.Name)
 		}
 		cronJobs = SyncCronJobs(sourceKubeConfig, cronJobs)
-		PrintCronJobs(cronJobs)
+		//PrintCronJobs(cronJobs)
+		ApplyCronJobs(targetKubeConfig, cronJobs)
 	} else {
 		klog.Infoln("No specified k8s resources to sync, exit !")
 		Usage()

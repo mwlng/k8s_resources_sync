@@ -92,13 +92,13 @@ func (cj *CronJob) ApplyCronJob(cronJob *batchv1.CronJob) error {
 }
 
 /* Experimental
-func (d *CronJob) ApplyCronJob(job *batchv1.CronJob) error {
+func (s *CronJob) ApplyCronJob(job *batchv1.CronJob) error {
 	cronJobApplyConfig, err := v1.ExtractCronJob(job, "k8s_resource_sync")
 	if err != nil {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), cronJobApplyConfig, metav1.ApplyOptions{FieldManager: "k8s_resource_sync"})
+	_, err = s.client.Apply(context.TODO(), cronJobApplyConfig, metav1.ApplyOptions{FieldManager: "k8s_resource_sync"})
 	if err != nil {
 		return err
 	}

@@ -6,7 +6,6 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "k8s.io/client-go/applyconfigurations/core/v1"
 	typedv1 "k8s.io/client-go/kubernetes/typed/core/v1"
 
 	"k8s.io/client-go/kubernetes"
@@ -28,8 +27,8 @@ func NewService(config *rest.Config, namespace string) (*Service, error) {
 	}, nil
 }
 
-func (d *Service) ListServices() (*corev1.ServiceList, error) {
-	list, err := d.client.List(context.TODO(), metav1.ListOptions{})
+func (s *Service) ListServices() (*corev1.ServiceList, error) {
+	list, err := s.client.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +36,8 @@ func (d *Service) ListServices() (*corev1.ServiceList, error) {
 	return list, nil
 }
 
-func (d *Service) GetService(name string) (*corev1.Service, error) {
-	service, err := d.client.Get(context.TODO(), name, metav1.GetOptions{})
+func (s *Service) GetService(name string) (*corev1.Service, error) {
+	service, err := s.client.Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +45,8 @@ func (d *Service) GetService(name string) (*corev1.Service, error) {
 	return service, nil
 }
 
-func (d *Service) CreateService(service *corev1.Service) error {
-	_, err := d.client.Create(context.TODO(), service, metav1.CreateOptions{FieldManager: "k8k8s_resource_sync"})
+func (s *Service) CreateService(service *corev1.Service) error {
+	_, err := s.client.Create(context.TODO(), service, metav1.CreateOptions{FieldManager: "k8k8s_resource_sync"})
 	if err != nil {
 		return err
 	}
@@ -55,16 +54,44 @@ func (d *Service) CreateService(service *corev1.Service) error {
 	return nil
 }
 
-func (d *Service) ApplyService(service *corev1.Service) error {
+func (s *Service) UpdateService(service *corev1.Service) error {
+	_, err := s.client.Update(context.TODO(), service, metav1.UpdateOptions{FieldManager: "k8k8s_resource_sync"})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *Service) ApplyService(service *corev1.Service) error {
+	result, _ := s.GetService(service.Name)
+	if result != nil {
+		err := s.UpdateService(service)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := s.CreateService(service)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/* Experimental
+func (s *Service) ApplyService(service *corev1.Service) error {
 	serviceApplyConfig, err := v1.ExtractService(service, "k8s_resource_sync")
 	if err != nil {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), serviceApplyConfig, metav1.ApplyOptions{})
+	_, err = s.client.Apply(context.TODO(), serviceApplyConfig, metav1.ApplyOptions{})
 	if err != nil {
 		return err
 	}
 
 	return nil
 }
+*/
