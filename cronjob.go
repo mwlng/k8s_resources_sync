@@ -77,6 +77,17 @@ func SyncCronJobs(kubeConfig *rest.Config, cronJobs []*batchv1.CronJob) []*batch
 		}
 
 		if src_cronJob != nil {
+			containerImageMap := map[string]string{}
+			for _, c := range src_cronJob.Spec.JobTemplate.Spec.Template.Spec.Containers {
+				containerImageMap[c.Name] = c.Image
+			}
+
+			for i, c := range job.Spec.JobTemplate.Spec.Template.Spec.Containers {
+				job.Spec.JobTemplate.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
+			}
+
+			job.Spec.Schedule = src_cronJob.Spec.Schedule
+
 			synced_cronJobs = append(synced_cronJobs, job)
 		}
 	}

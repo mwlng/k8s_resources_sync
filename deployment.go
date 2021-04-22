@@ -66,7 +66,7 @@ func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) 
 		panic(err)
 	}
 
-	new_Deployments := []*appsv1.Deployment{}
+	synced_Deployments := []*appsv1.Deployment{}
 	for _, d := range deployments {
 		src_deployment, err := deployment.GetDeployment(d.Name)
 		if err != nil {
@@ -74,21 +74,23 @@ func SyncDeployments(kubeConfig *rest.Config, deployments []*appsv1.Deployment) 
 			continue
 		}
 
-		containerImageMap := map[string]string{}
-		for _, c := range src_deployment.Spec.Template.Spec.Containers {
-			containerImageMap[c.Name] = c.Image
+		if src_deployment != nil {
+			containerImageMap := map[string]string{}
+			for _, c := range src_deployment.Spec.Template.Spec.Containers {
+				containerImageMap[c.Name] = c.Image
+			}
+
+			for i, c := range d.Spec.Template.Spec.Containers {
+				d.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
+			}
+
+			d.Spec.Replicas = src_deployment.Spec.Replicas
+
+			synced_Deployments = append(synced_Deployments, d)
 		}
-
-		for i, c := range d.Spec.Template.Spec.Containers {
-			d.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
-		}
-
-		d.Spec.Replicas = src_deployment.Spec.Replicas
-
-		new_Deployments = append(new_Deployments, d)
 	}
 
-	return new_Deployments
+	return synced_Deployments
 }
 
 func PrintDeployments(deployments []*appsv1.Deployment) {

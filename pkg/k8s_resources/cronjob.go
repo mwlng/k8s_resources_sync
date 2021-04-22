@@ -6,7 +6,6 @@ import (
 	batchv1 "k8s.io/api/batch/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "k8s.io/client-go/applyconfigurations/batch/v1beta1"
 	typedv1 "k8s.io/client-go/kubernetes/typed/batch/v1beta1"
 
 	"k8s.io/client-go/kubernetes"
@@ -28,8 +27,8 @@ func NewCronJob(config *rest.Config, namespace string) (*CronJob, error) {
 	}, nil
 }
 
-func (d *CronJob) ListCronJobs() (*batchv1.CronJobList, error) {
-	list, err := d.client.List(context.TODO(), metav1.ListOptions{})
+func (cj *CronJob) ListCronJobs() (*batchv1.CronJobList, error) {
+	list, err := cj.client.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -37,8 +36,8 @@ func (d *CronJob) ListCronJobs() (*batchv1.CronJobList, error) {
 	return list, nil
 }
 
-func (d *CronJob) GetCronJob(name string) (*batchv1.CronJob, error) {
-	job, err := d.client.Get(context.TODO(), name, metav1.GetOptions{})
+func (cj *CronJob) GetCronJob(name string) (*batchv1.CronJob, error) {
+	job, err := cj.client.Get(context.TODO(), name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -46,8 +45,8 @@ func (d *CronJob) GetCronJob(name string) (*batchv1.CronJob, error) {
 	return job, nil
 }
 
-func (d *CronJob) CreateCronJob(job *batchv1.CronJob) error {
-	_, err := d.client.Create(context.TODO(), job, metav1.CreateOptions{})
+func (cj *CronJob) CreateCronJob(job *batchv1.CronJob) error {
+	_, err := cj.client.Create(context.TODO(), job, metav1.CreateOptions{})
 	if err != nil {
 		return err
 	}
@@ -55,6 +54,44 @@ func (d *CronJob) CreateCronJob(job *batchv1.CronJob) error {
 	return nil
 }
 
+func (cj *CronJob) UpdateCronJob(job *batchv1.CronJob) error {
+	_, err := cj.client.Update(context.TODO(), job, metav1.UpdateOptions{})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cj *CronJob) ApplyCronJob(cronJob *batchv1.CronJob) error {
+	result, _ := cj.GetCronJob(cronJob.Name)
+	if result != nil {
+		containerImageMap := map[string]string{}
+		for _, c := range cronJob.Spec.JobTemplate.Spec.Template.Spec.Containers {
+			containerImageMap[c.Name] = c.Image
+		}
+
+		for i, c := range result.Spec.JobTemplate.Spec.Template.Spec.Containers {
+			result.Spec.JobTemplate.Spec.Template.Spec.Containers[i].Image = containerImageMap[c.Name]
+		}
+
+		result.Spec.Schedule = cronJob.Spec.Schedule
+
+		err := cj.UpdateCronJob(result)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := cj.CreateCronJob(cronJob)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+/* Experimental
 func (d *CronJob) ApplyCronJob(job *batchv1.CronJob) error {
 	cronJobApplyConfig, err := v1.ExtractCronJob(job, "k8s_resource_sync")
 	if err != nil {
@@ -68,3 +105,4 @@ func (d *CronJob) ApplyCronJob(job *batchv1.CronJob) error {
 
 	return nil
 }
+*/
