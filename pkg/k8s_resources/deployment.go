@@ -6,7 +6,6 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	v1 "k8s.io/client-go/applyconfigurations/apps/v1"
 	typedv1 "k8s.io/client-go/kubernetes/typed/apps/v1"
 
 	"k8s.io/client-go/kubernetes"
@@ -55,15 +54,31 @@ func (d *Deployment) CreateDeployment(deployment *appsv1.Deployment) error {
 	return nil
 }
 
-func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
-	deploymentApplyConfig, err := v1.ExtractDeployment(deployment, "k8s_resources_sync")
+func (d *Deployment) UpdateDeployment(deployment *appsv1.Deployment) error {
+	_, err := d.client.Update(context.TODO(), deployment, metav1.UpdateOptions{})
 	if err != nil {
 		return err
 	}
 
-	_, err = d.client.Apply(context.TODO(), deploymentApplyConfig, metav1.ApplyOptions{FieldManager: "k8s_resources_sync"})
+	return nil
+}
+
+func (d *Deployment) ApplyDeployment(deployment *appsv1.Deployment) error {
+	deployment, err := d.GetDeployment(deployment.Name)
 	if err != nil {
 		return err
+	}
+
+	if deployment != nil {
+		err := d.UpdateDeployment(deployment)
+		if err != nil {
+			return err
+		}
+	} else {
+		err := d.CreateDeployment(deployment)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
