@@ -71,6 +71,7 @@ func (s *ServiceAccount) ApplyServiceAccount(serviceAccount *corev1.ServiceAccou
 			return err
 		}
 	} else {
+		serviceAccount.ResourceVersion = ""
 		err := s.CreateServiceAccount(serviceAccount)
 		if err != nil {
 			return err

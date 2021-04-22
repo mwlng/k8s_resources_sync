@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 
-	//"gopkg.in/yaml.v2"
-
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/util/homedir"
 	"k8s.io/klog/v2"
