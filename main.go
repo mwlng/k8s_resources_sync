@@ -60,7 +60,7 @@ func main() {
 	cronFlag := flag.Bool("cronjob", false, "Sync k8s cron job resources")
 	saFlag := flag.Bool("serviceaccount", false, "Sync k8s service account resources")
 	crFlag := flag.Bool("clusterrole", false, "Sync k8s cluster role resources")
-	crbFlag := flag.Bool("clusterrole", false, "Sync k8s cluster role binding resources")
+	crbFlag := flag.Bool("clusterrolebinding", false, "Sync k8s cluster role binding resources")
 
 	flag.Set("v", "2")
 	flag.Parse()
