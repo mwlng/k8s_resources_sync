@@ -19,7 +19,7 @@ import (
 )
 
 var private_subnets map[string]string = map[string]string{
-	"alpha": "subnet-092aa15246e226be2, subnet-0c85b6c43be91a809",
+	"alpha": "subnet-092aa15246e226be2,subnet-0c85b6c43be91a809",
 	"qa":    "",
 	"prod":  "",
 }
