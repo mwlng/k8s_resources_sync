@@ -22,6 +22,7 @@ import (
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	// _ "k8s.io/client-go/plugin/pkg/client/auth/openstack"
 
+	"github.com/mwlng/k8s_resources_sync/pkg/helpers"
 	"github.com/mwlng/k8s_resources_sync/pkg/utils"
 )
 
@@ -56,6 +57,7 @@ func main() {
 	deploymentFlag := flag.Bool("deployment", false, "Sync k8s deployment resources")
 	serviceFlag := flag.Bool("service", false, "Sync k8s service resources")
 	cronFlag := flag.Bool("cronjob", false, "Sync k8s cron job resources")
+	saFlag := flag.Bool("serviceaccount", false, "Sync k8s service account resource")
 	srcEksClusterName := flag.String("source_cluster_name", "", "k8s source cluster name")
 	rootPath := flag.String("rootpath", "", "Specified root path of k8s resource manifest files")
 
@@ -79,7 +81,7 @@ func main() {
 		panic(err)
 	}
 
-	sourceKubeConfig, err := GetKubeConfig(*srcEksClusterName, *kubeconfig)
+	sourceKubeConfig, err := helpers.GetKubeConfig(*srcEksClusterName, *kubeconfig)
 	if err != nil {
 		panic(err)
 	}
@@ -87,31 +89,40 @@ func main() {
 	klog.Infof("Starting to sync k8s resources from %s in %s ...", sourceKubeConfig.Host, *environ)
 	if *deploymentFlag {
 		klog.Infof("Syncing k8s deployment resources to %s ...", targetKubeConfig.Host)
-		deployments := LoadDeploymentYamlFiles(eksFilesRootPath)
+		deployments := helpers.LoadDeploymentYamlFiles(eksFilesRootPath)
 		for _, d := range deployments {
 			klog.Infof("* Deployment: %s\n", d.ObjectMeta.Name)
 		}
-		deployments = SyncDeployments(sourceKubeConfig, deployments)
+		deployments = helpers.SyncDeployments(sourceKubeConfig, deployments)
 		//PrintDeployments(deployments)
-		ApplyDeployments(targetKubeConfig, deployments)
+		helpers.ApplyDeployments(targetKubeConfig, deployments)
 	} else if *serviceFlag {
 		klog.Infof("Syncing k8s service resources to %s ...", targetKubeConfig.Host)
-		services := LoadServiceYamlFiles(eksFilesRootPath)
+		services := helpers.LoadServiceYamlFiles(eksFilesRootPath)
 		for _, s := range services {
 			klog.Infof("* Service: %s\n", s.ObjectMeta.Name)
 		}
-		services = SyncServices(sourceKubeConfig, services)
+		services = helpers.SyncServices(sourceKubeConfig, services)
 		//PrintServices(services)
-		ApplyServices(targetKubeConfig, services)
+		helpers.ApplyServices(targetKubeConfig, services)
 	} else if *cronFlag {
 		klog.Infof("Syncing k8s cron jobs to %s ...", targetKubeConfig.Host)
-		cronJobs := LoadCronJobYamlFiles(eksFilesRootPath)
+		cronJobs := helpers.LoadCronJobYamlFiles(eksFilesRootPath)
 		for _, job := range cronJobs {
 			klog.Infof("* cron job: %s\n", job.ObjectMeta.Name)
 		}
-		cronJobs = SyncCronJobs(sourceKubeConfig, cronJobs)
+		cronJobs = helpers.SyncCronJobs(sourceKubeConfig, cronJobs)
 		//PrintCronJobs(cronJobs)
-		ApplyCronJobs(targetKubeConfig, cronJobs)
+		helpers.ApplyCronJobs(targetKubeConfig, cronJobs)
+	} else if *saFlag {
+		klog.Infof("Syncing k8s service accounts to %s ...", targetKubeConfig.Host)
+		serviceAccounts := helpers.LoadServiceAccountYamlFiles(eksFilesRootPath)
+		for _, account := range serviceAccounts {
+			klog.Infof("* service account: %s\n", account.ObjectMeta.Name)
+		}
+		serviceAccounts = helpers.SyncServiceAccounts(sourceKubeConfig, serviceAccounts)
+		//PrintCronJobs(cronJobs)
+		helpers.ApplyServiceAccounts(targetKubeConfig, serviceAccounts)
 	} else {
 		klog.Infoln("No specified k8s resources to sync, exit !")
 		Usage()
