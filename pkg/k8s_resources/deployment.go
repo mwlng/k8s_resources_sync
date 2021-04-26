@@ -27,7 +27,7 @@ func NewDeployment(config *rest.Config, namespace string) (*Deployment, error) {
 	}, nil
 }
 
-func (d *Deployment) ListDeloyments() (*appsv1.DeploymentList, error) {
+func (d *Deployment) ListDeployments() (*appsv1.DeploymentList, error) {
 	list, err := d.client.List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
 		return nil, err
