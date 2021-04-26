@@ -24,6 +24,10 @@ import (
 	"github.com/mwlng/k8s_resources_sync/pkg/utils"
 )
 
+const (
+	defaultEnviron = "alpha"
+)
+
 var (
 	eksPaths map[string]string = map[string]string{
 		"alpha": "/home/ssm-user/backup/eks/dev/alphaeks/app-services",
@@ -51,7 +55,7 @@ func main() {
 		kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
 	}
 
-	environ := flag.String("e", "alpha", "Target environment")
+	environ := flag.String("e", defaultEnviron, "Target environment")
 	srcEksClusterName := flag.String("source_cluster_name", "", "Source k8s cluster name")
 	rootPath := flag.String("rootpath", "", "Specified root path of k8s resource manifest files")
 
