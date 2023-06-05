@@ -3,10 +3,10 @@ package k8s_resources
 import (
 	"context"
 
-	batchv1 "k8s.io/api/batch/v1beta1"
+	batchv1 "k8s.io/api/batch/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
-	typedv1 "k8s.io/client-go/kubernetes/typed/batch/v1beta1"
+	typedv1 "k8s.io/client-go/kubernetes/typed/batch/v1"
 
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
@@ -23,7 +23,7 @@ func NewCronJob(config *rest.Config, namespace string) (*CronJob, error) {
 	}
 
 	return &CronJob{
-		client: clientset.BatchV1beta1().CronJobs(namespace),
+		client: clientset.BatchV1().CronJobs(namespace),
 	}, nil
 }
 

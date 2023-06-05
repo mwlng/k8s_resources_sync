@@ -23,7 +23,8 @@ var (
 		"alpha": "subnet-092aa15246e226be2,subnet-0c85b6c43be91a809",
 		//"qa":    "subnet-e61597c9,subnet-8d9016d0,subnet-e240a3ed",
 		"qa":   "",
-		"prod": "",
+		"prod": "subnet-61ba8d4e,subnet-48665215,subnet-4066c14f",
+		//"prod": "",
 	}
 )
 
